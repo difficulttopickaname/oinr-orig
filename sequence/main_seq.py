@@ -187,6 +187,28 @@ def	main(args, device):
 	with open(os.path.join(args.exp, 'final_results.pkl'), 'wb') as	fie:
 		pickle.dump(result_log,	fie)
 
+	# save final result .npy
+	final_output_dir = args.exp + '/final_output/'
+	if not os.path.exists(final_output_dir):
+		os.makedirs(final_output_dir)
+	final_reconstruction = []
+
+	model.eval()
+	with torch.no_grad():
+		for missing_image, true_image in dataloader:
+			missing_image = missing_image.to(device)
+			x_pred = model(missing_image, verbose=False)
+			np_pred_slice = x_pred.cpu().detach().numpy()
+			np_pred_slice = np.squeeze(np_pred_slice, axis=1)
+			final_reconstruction.append(np_pred_slice)
+
+	final_reconstruction = np.concatenate(final_reconstruction, axis=0)
+	print("Final reconstruction shape:", final_reconstruction.shape)
+
+	final_npy_fname = os.path.join(final_output_dir, 'final_prediction.npy')
+	np.save(final_npy_fname, final_reconstruction)
+	print(f"Final MRI prediction saved as: {final_npy_fname}")
+
 if __name__	== '__main__':
 	import sys
 	sys.path.append('..')

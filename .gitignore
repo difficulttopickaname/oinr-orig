@@ -9,3 +9,4 @@ data/
 *.pt
 *.pyc
 *.__pycache__
+pytorch_wavelets/
